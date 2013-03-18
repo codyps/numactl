@@ -79,12 +79,11 @@ stream: stream_lib.o stream_main.o  libnuma.so util.o
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ ${LDLIBS}
 
 libnuma.so.1: versions.ldscript
-
 libnuma.so.1: libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
-	${CC} ${LDFLAGS} -shared -Wl,-soname=libnuma.so.1 -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o libnuma.so.1 $(filter-out versions.ldscript,$^)
+	${CC} ${LDFLAGS} -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
 
-libnuma.so: libnuma.so.1
-	ln -sf libnuma.so.1 libnuma.so
+%.so: %.so.1
+	ln -sf $< $@
 
 libnuma.o : CFLAGS += -fPIC
 
