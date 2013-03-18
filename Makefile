@@ -17,7 +17,7 @@ endif
 
 # find out if compiler supports -ftree-vectorize
 THREAD_SUPPORT := $(shell touch empty.c ; if $(CC) $(CFLAGS) -c -ftree-vectorize empty.c -o empty.o \
-			>/dev/null 2>/dev/null ; then echo "yes" ; else echo "no"; fi)
+			>/dev/null 2>/dev/null ; then echo "yes" ; else echo "no"; fi; rm empty.c)
 ifeq ($(THREAD_SUPPORT),yes)
 	BENCH_CFLAGS += -ftree-vectorize
 endif
