@@ -27,6 +27,7 @@ TOOLS := numactl numademo memhog numamon stream migratepages migspeed \
 TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
 	tbitmap after before mbind_mig_pagesmigrate_pages move_pages \
 	realloc_test node-parse A
+TESTS := $(addprefix test/,$(TESTS))
 CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
 	      libnuma.so libnuma.so.1 numamon.o syscall.o bitops.o \
 	      memhog.o util.o stream_main.o stream_lib.o shm.o clearcache.o \
