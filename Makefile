@@ -1,6 +1,6 @@
 # these can (and should) be overridden on the make command line for production
 CFLAGS :=  -g -Wall -O2
-# these are used for the benchmarks in addition to the normal CFLAGS. 
+# these are used for the benchmarks in addition to the normal CFLAGS.
 # Normally no need to overwrite unless you find a new magic flag to make
 # STREAM run faster.
 BENCH_CFLAGS := -O3 -ffast-math -funroll-loops
@@ -66,7 +66,7 @@ numademo: LDLIBS += -lm
 # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
 numademo: CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
 stream_lib.o: CFLAGS += ${BENCH_CFLAGS}
-mt.o: CFLAGS += ${BENCH_CFLAGS} 
+mt.o: CFLAGS += ${BENCH_CFLAGS}
 numademo: numademo.o stream_lib.o mt.o libnuma.so clearcache.o
 
 test_numademo: numademo
@@ -160,19 +160,19 @@ install: numactl migratepages migspeed numademo.c numamon memhog libnuma.so.1 nu
 	if [ -d ${docdir} ] ; then \
 		mkdir -p ${docdir}/numactl/examples ; \
 		install -m 0644 numademo.c ${docdir}/numactl/examples ; \
-	fi	
+	fi
 
 HTML := html/numactl.html html/numa.html
 
-clean: 
+clean:
 	rm -f ${CLEANFILES}
 	@rm -rf html
 
 distclean: clean
 	rm -f .[^.]* */.[^.]*
-	rm -f *~ */*~ *.orig */*.orig */*.rej *.rej 
+	rm -f *~ */*~ *.orig */*.orig */*.rej *.rej
 
-html: ${HTML} 
+html: ${HTML}
 
 htmldir:
 	if [ ! -d html ] ; then mkdir html ; fi
@@ -194,7 +194,7 @@ Makefile: .depend
 
 .PHONY: test regress1 regress2
 
-regress1: 
+regress1:
 	cd test ; ./regress
 
 regress2:
