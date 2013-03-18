@@ -23,10 +23,10 @@ ifeq ($(THREAD_SUPPORT),yes)
 endif
 
 TOOLS := numactl numademo memhog numamon stream migratepages migspeed \
-	numastat threadtest test_move_pages
+	numastat threadtest
 TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
-	tbitmap after before mbind_mig_pagesmigrate_pages move_pages \
-	realloc_test node-parse A
+	tbitmap mbind_mig_pages migrate_pages move_pages \
+	realloc_test node-parse
 TESTS := $(addprefix test/,$(TESTS))
 CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
 	      libnuma.so libnuma.so.1 numamon.o syscall.o bitops.o \
@@ -35,6 +35,7 @@ CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
 	      .depend .depend.X \
 	      migspeed.o libnuma.a \
 	      sysfs.o affinity.o \
+	      test/A test/after test/before\
 	      $(TOOLS) $(TESTS)
 SOURCES := bitops.c libnuma.c distance.c memhog.c numactl.c numademo.c \
 	numamon.c shm.c stream_lib.c stream_main.c syscall.c util.c mt.c \
@@ -77,6 +78,7 @@ test_numademo: numademo
 	LD_LIBRARY_PATH=$$(pwd) ./numademo -t -e 10M
 
 numamon: numamon.o
+threadtest: threadtest.o
 
 stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o util.o libnuma.so
