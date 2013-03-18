@@ -60,11 +60,7 @@ migratepages: migratepages.c util.o bitops.o libnuma.so
 migspeed: LDLIBS += -lrt
 migspeed: migspeed.o util.o libnuma.so
 
-util.o: util.c
-
 memhog: util.o memhog.o libnuma.so
-
-numactl.o: numactl.c
 
 numademo: LDLIBS += -lm
 # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
@@ -77,15 +73,11 @@ numademo: numademo.o stream_lib.o mt.o libnuma.so clearcache.o
 test_numademo: numademo
 	LD_LIBRARY_PATH=$$(pwd) ./numademo -t -e 10M
 
-numademo.o: numademo.c libnuma.so	
-
 numamon: numamon.o
 
 stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o  libnuma.so util.o
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ ${LDLIBS}
-
-stream_main.o: stream_main.c
 
 libnuma.so.1: versions.ldscript
 
