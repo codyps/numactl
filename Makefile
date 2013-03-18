@@ -4,9 +4,8 @@ CFLAGS :=  -g -Wall -O2
 # Normally no need to overwrite unless you find a new magic flag to make
 # STREAM run faster.
 BENCH_CFLAGS := -O3 -ffast-math -funroll-loops
-# for compatibility with old releases
-CFLAGS += ${OPT_CFLAGS}
-override CFLAGS += -I.
+
+CFLAGS += -I.
 
 # find out if compiler supports __thread
 THREAD_SUPPORT := $(shell if $(CC) $(CFLAGS) threadtest.c -o threadtest \
@@ -28,8 +27,11 @@ TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
 	tbitmap mbind_mig_pages migrate_pages move_pages \
 	realloc_test node-parse
 TESTS := $(addprefix test/,$(TESTS))
+
+LIBNUMA_VER=1.3
+
 CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
-	      libnuma.so libnuma.so.1 numamon.o syscall.o bitops.o \
+	      libnuma.so libnuma.so.$(LIBNUMA_VER) numamon.o syscall.o bitops.o \
 	      memhog.o util.o stream_main.o stream_lib.o shm.o clearcache.o \
 	      test/mynode.o test/tshared.o mt.o empty.o empty.c \
 	      .depend .depend.X \
@@ -51,24 +53,24 @@ docdir := ${prefix}/share/doc
 
 all: $(TOOLS) $(TESTS) libnuma.so libnuma.a
 
-numactl: numactl.o util.o shm.o bitops.o libnuma.so
+numactl: numactl.o util.o shm.o bitops.o
 
 numastat: CFLAGS += -std=gnu99
 numastat: numastat.o
 
-migratepages: migratepages.c util.o bitops.o libnuma.so
+migratepages: migratepages.c util.o bitops.o
 
 migspeed: LDLIBS += -lrt
-migspeed: migspeed.o util.o libnuma.so
+migspeed: migspeed.o util.o
 
-memhog: util.o memhog.o libnuma.so
+memhog: util.o memhog.o
 
 numademo: LDLIBS += -lm
 # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
 numademo: CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
-stream_lib.o: CFLAGS += ${BENCH_CFLAGS}
-mt.o: CFLAGS += ${BENCH_CFLAGS}
-numademo: numademo.o stream_lib.o mt.o libnuma.so clearcache.o
+#stream_lib.o: CFLAGS += ${BENCH_CFLAGS}
+#mt.o: CFLAGS += ${BENCH_CFLAGS}
+numademo: numademo.o stream_lib.o mt.o clearcache.o
 
 test_numademo: numademo
 	LD_LIBRARY_PATH=$$(pwd) ./numademo -t -e 10M
@@ -77,13 +79,13 @@ numamon: numamon.o
 threadtest: threadtest.o
 
 stream: LDLIBS += -lm
-stream: stream_lib.o stream_main.o util.o libnuma.so
+stream: stream_lib.o stream_main.o util.o
 
-libnuma.so.1: versions.ldscript
-libnuma.so.1: libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
+libnuma.so.$(LIBNUMA_VER): versions.ldscript
+libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
 	${CC} ${LDFLAGS} -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
 
-%.so: %.so.1
+%.so: %.so.$(LIBNUMA_VER)
 	ln -sf $< $@
 
 libnuma.o : CFLAGS += -fPIC
@@ -91,8 +93,8 @@ libnuma.o : CFLAGS += -fPIC
 %.o : %.c
 	${CC} ${CFLAGS} -o $@ -c $<
 
-$(TOOLS) $(TESTS) :
-	${CC} ${LDFLAGS} -o $@ $^ ${LDLIBS}
+$(TOOLS) $(TESTS) : libnuma.so libnuma.a
+	${CC} ${LDFLAGS} -o $@ $(filter-out libnuma.so,$(filter-out libnuma.a,$^)) ${LDLIBS} -L. -lnuma
 
 AR ?= ar
 RANLIB ?= ranlib
@@ -110,39 +112,39 @@ sysfs.o : CFLAGS += -fPIC
 
 rtnetlink.o : CFLAGS += -fPIC
 
-test/tshared: test/tshared.o libnuma.so
+test/tshared: test/tshared.o
 
-test/mynode: test/mynode.o libnuma.so
+test/mynode: test/mynode.o
 
-test/pagesize: test/pagesize.c libnuma.so
+test/pagesize: test/pagesize.o
 
-test/prefered: test/prefered.c libnuma.so
+test/prefered: test/prefered.o
 
-test/ftok: test/ftok.c libnuma.so
+test/ftok: test/ftok.o
 
-test/randmap: test/randmap.c libnuma.so
+test/randmap: test/randmap.o
 
-test/nodemap: test/nodemap.c libnuma.so
+test/nodemap: test/nodemap.o
 
-test/distance: test/distance.c libnuma.so
+test/distance: test/distance.o
 
-test/tbitmap: test/tbitmap.c libnuma.so
+test/tbitmap: test/tbitmap.o
 
-test/move_pages: test/move_pages.c libnuma.so
+test/move_pages: test/move_pages.o
 
-test/mbind_mig_pages: test/mbind_mig_pages.c libnuma.so
+test/mbind_mig_pages: test/mbind_mig_pages.o
 
-test/migrate_pages: test/migrate_pages.c libnuma.so
+test/migrate_pages: test/migrate_pages.o
 
-test/realloc_test: test/realloc_test.c libnuma.so
+test/realloc_test: test/realloc_test.o
 
-test/node-parse: test/node-parse.c libnuma.so util.o
+test/node-parse: test/node-parse.o util.o
 
 .PHONY: install all clean html depend
 
 MANPAGES := numa.3 numactl.8 numastat.8 migratepages.8 migspeed.8
 
-install: numactl migratepages migspeed numademo.c numamon memhog libnuma.so.1 numa.h numaif.h numacompat1.h numastat ${MANPAGES}
+install: numactl migratepages migspeed numademo.c numamon memhog libnuma.so.$(LIBNUMA_VER) numa.h numaif.h numacompat1.h numastat ${MANPAGES}
 	mkdir -p ${prefix}/bin
 	install -m 0755 numactl ${prefix}/bin
 	install -m 0755 migratepages ${prefix}/bin
@@ -157,8 +159,8 @@ install: numactl migratepages migspeed numademo.c numamon memhog libnuma.so.1 nu
 	install -m 0644 numa.3 ${prefix}/share/man/man3
 	( cd ${prefix}/share/man/man3 ; for i in $$(./manlinks) ; do ln -sf numa.3 $$i.3 ; done )
 	mkdir -p ${libdir}
-	install -m 0755 libnuma.so.1 ${libdir}
-	cd ${libdir} ; ln -sf libnuma.so.1 libnuma.so
+	install -m 0755 libnuma.so.$(LIBNUMA_VER) ${libdir}
+	cd ${libdir} ; ln -sf libnuma.so.$(LIBNUMA_VER) libnuma.so
 	install -m 0644 libnuma.a ${libdir}
 	mkdir -p ${prefix}/include
 	install -m 0644 numa.h numaif.h numacompat1.h ${prefix}/include
