@@ -1,0 +1,12 @@
+*.[oad]
+*.so*
+
+/memhog
+/numactl
+/numastat
+/numademo
+/numamon
+/stream
+/migspeed
+/migratepages
+/threadtest
