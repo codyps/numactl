@@ -49,11 +49,7 @@ endif
 libdir := ${prefix}/$(shell ./getlibdir)
 docdir := ${prefix}/share/doc
 
-all: numactl migratepages migspeed libnuma.so numademo numamon memhog \
-     test/tshared stream test/mynode test/pagesize test/ftok test/prefered \
-     test/randmap test/nodemap test/distance test/tbitmap test/move_pages \
-     test/mbind_mig_pages test/migrate_pages test/realloc_test libnuma.a \
-     test/node-parse numastat
+all: $(TOOLS) $(TESTS) libnuma.so libnuma.a
 
 numactl: numactl.o util.o shm.o bitops.o libnuma.so
 
