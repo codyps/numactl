@@ -22,17 +22,19 @@ ifeq ($(THREAD_SUPPORT),yes)
 	BENCH_CFLAGS += -ftree-vectorize
 endif
 
-CLEANFILES := numactl.o libnuma.o numactl numademo numademo.o distance.o \
-	      memhog libnuma.so libnuma.so.1 numamon numamon.o syscall.o bitops.o \
-	      memhog.o util.o stream_main.o stream_lib.o shm.o stream clearcache.o \
-	      test/pagesize test/tshared test/mynode.o test/tshared.o mt.o empty.o empty.c \
-	      test/mynode test/ftok test/prefered test/randmap \
-	      .depend .depend.X test/nodemap test/distance test/tbitmap \
-	      test/after test/before threadtest test_move_pages \
-	      test/mbind_mig_pages test/migrate_pages \
-	      migratepages migspeed migspeed.o libnuma.a \
-	      test/move_pages test/realloc_test sysfs.o affinity.o \
-	      test/node-parse rtnetlink.o test/A numastat
+TOOLS := numactl numademo memhog numamon stream migratepages migspeed \
+	numastat threadtest test_move_pages
+TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
+	tbitmap after before mbind_mig_pagesmigrate_pages move_pages \
+	realloc_test node-parse A
+CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
+	      libnuma.so libnuma.so.1 numamon.o syscall.o bitops.o \
+	      memhog.o util.o stream_main.o stream_lib.o shm.o clearcache.o \
+	      test/mynode.o test/tshared.o mt.o empty.o empty.c \
+	      .depend .depend.X \
+	      migspeed.o libnuma.a \
+	      sysfs.o affinity.o \
+	      $(TOOLS) $(TESTS)
 SOURCES := bitops.c libnuma.c distance.c memhog.c numactl.c numademo.c \
 	numamon.c shm.c stream_lib.c stream_main.c syscall.c util.c mt.c \
 	clearcache.c test/*.c affinity.c sysfs.c rtnetlink.c
@@ -89,6 +91,9 @@ libnuma.o : CFLAGS += -fPIC
 
 %.o : %.c
 	${CC} ${CFLAGS} -o $@ -c $<
+
+$(TOOLS) $(TESTS) :
+	${CC} ${LDFLAGS} -o $@ $^ ${LDLIBS}
 
 AR ?= ar
 RANLIB ?= ranlib
