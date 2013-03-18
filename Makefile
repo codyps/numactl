@@ -78,8 +78,7 @@ test_numademo: numademo
 numamon: numamon.o
 
 stream: LDLIBS += -lm
-stream: stream_lib.o stream_main.o  libnuma.so util.o
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ ${LDLIBS}
+stream: stream_lib.o stream_main.o util.o libnuma.so
 
 libnuma.so.1: versions.ldscript
 libnuma.so.1: libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
