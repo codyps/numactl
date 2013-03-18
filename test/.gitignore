@@ -1,0 +1,13 @@
+/distance
+/ftok
+/mbind_mig_pages
+/migrate_pages
+/mynode
+/node-parse
+/nodemap
+/pagesize
+/prefered
+/randmap
+/realloc_test
+/tbitmap
+/tshared
