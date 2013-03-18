@@ -5,17 +5,17 @@ CFLAGS :=  -g -Wall -O2
 # STREAM run faster.
 BENCH_CFLAGS := -O3 -ffast-math -funroll-loops
 
-CFLAGS += -I.
+ALL_CFLAGS += $(CFLAGS) -I.
 
 # find out if compiler supports __thread
-THREAD_SUPPORT := $(shell if $(CC) $(CFLAGS) threadtest.c -o threadtest \
+THREAD_SUPPORT := $(shell if $(CC) $(ALL_CFLAGS) threadtest.c -o threadtest \
 			>/dev/null 2>/dev/null ; then echo "yes" ; else echo "no"; fi)
 ifeq ($(THREAD_SUPPORT),no)
-	override CFLAGS += -D__thread=""
+	ALL_CFLAGS += -D__thread=""
 endif
 
 # find out if compiler supports -ftree-vectorize
-THREAD_SUPPORT := $(shell touch empty.c ; if $(CC) $(CFLAGS) -c -ftree-vectorize empty.c -o empty.o \
+THREAD_SUPPORT := $(shell touch empty.c ; if $(CC) $(ALL_CFLAGS) -c -ftree-vectorize empty.c -o empty.o \
 			>/dev/null 2>/dev/null ; then echo "yes" ; else echo "no"; fi; rm empty.c)
 ifeq ($(THREAD_SUPPORT),yes)
 	BENCH_CFLAGS += -ftree-vectorize
@@ -55,7 +55,7 @@ all: $(TOOLS) $(TESTS) libnuma.so libnuma.a
 
 numactl: numactl.o util.o shm.o bitops.o
 
-numastat: CFLAGS += -std=gnu99
+numastat: ALL_CFLAGS += -std=gnu99
 numastat: numastat.o
 
 migratepages: migratepages.c util.o bitops.o
@@ -67,9 +67,9 @@ memhog: util.o memhog.o
 
 numademo: LDLIBS += -lm
 # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
-numademo: CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
-#stream_lib.o: CFLAGS += ${BENCH_CFLAGS}
-#mt.o: CFLAGS += ${BENCH_CFLAGS}
+numademo: ALL_CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
+#stream_lib.o: ALL_CFLAGS += ${BENCH_CFLAGS}
+#mt.o: ALL_CFLAGS += ${BENCH_CFLAGS}
 numademo: numademo.o stream_lib.o mt.o clearcache.o
 
 test_numademo: numademo
@@ -81,6 +81,7 @@ threadtest: threadtest.o
 stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o util.o
 
+libnuma.so.$(LIBNUMA_VER): ALL_CFLAGS += -fPIC
 libnuma.so.$(LIBNUMA_VER): versions.ldscript
 libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
 	${CC} ${LDFLAGS} -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
@@ -88,10 +89,9 @@ libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtn
 %.so: %.so.$(LIBNUMA_VER)
 	ln -sf $< $@
 
-libnuma.o : CFLAGS += -fPIC
 
 %.o : %.c
-	${CC} ${CFLAGS} -o $@ -c $<
+	${CC} ${ALL_CFLAGS} -o $@ -c $<
 
 $(TOOLS) $(TESTS) : libnuma.so libnuma.a
 	${CC} ${LDFLAGS} -o $@ $(filter-out libnuma.so,$(filter-out libnuma.a,$^)) ${LDLIBS} -L. -lnuma
@@ -102,42 +102,26 @@ libnuma.a: libnuma.o syscall.o distance.o sysfs.o affinity.o rtnetlink.o
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 
-distance.o : CFLAGS += -fPIC
-
-syscall.o : CFLAGS += -fPIC
-
-affinity.o : CFLAGS += -fPIC
-
-sysfs.o : CFLAGS += -fPIC
-
-rtnetlink.o : CFLAGS += -fPIC
+libnuma.o : ALL_CFLAGS += -fPIC
+distance.o : ALL_CFLAGS += -fPIC
+syscall.o : ALL_CFLAGS += -fPIC
+affinity.o : ALL_CFLAGS += -fPIC
+sysfs.o : ALL_CFLAGS += -fPIC
+rtnetlink.o : ALL_CFLAGS += -fPIC
 
 test/tshared: test/tshared.o
-
 test/mynode: test/mynode.o
-
 test/pagesize: test/pagesize.o
-
 test/prefered: test/prefered.o
-
 test/ftok: test/ftok.o
-
 test/randmap: test/randmap.o
-
 test/nodemap: test/nodemap.o
-
 test/distance: test/distance.o
-
 test/tbitmap: test/tbitmap.o
-
 test/move_pages: test/move_pages.o
-
 test/mbind_mig_pages: test/mbind_mig_pages.o
-
 test/migrate_pages: test/migrate_pages.o
-
 test/realloc_test: test/realloc_test.o
-
 test/node-parse: test/node-parse.o util.o
 
 .PHONY: install all clean html depend
