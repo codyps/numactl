@@ -48,8 +48,8 @@ prefix := /usr
 else
 prefix := $(PREFIX)
 endif
-libdir := ${prefix}/$(shell ./getlibdir)
-docdir := ${prefix}/share/doc
+libdir := $(prefix)/$(shell ./getlibdir)
+docdir := $(prefix)/share/doc
 
 all: $(TOOLS) $(TESTS) libnuma.so libnuma.a
 
@@ -67,9 +67,9 @@ memhog: util.o memhog.o
 
 numademo: LDLIBS += -lm
 # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
-numademo: ALL_CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
-#stream_lib.o: ALL_CFLAGS += ${BENCH_CFLAGS}
-#mt.o: ALL_CFLAGS += ${BENCH_CFLAGS}
+numademo: ALL_CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE $(BENCH_CFLAGS)
+#stream_lib.o: ALL_CFLAGS += $(BENCH_CFLAGS)
+#mt.o: ALL_CFLAGS += $(BENCH_CFLAGS)
 numademo: numademo.o stream_lib.o mt.o clearcache.o
 
 test_numademo: numademo
@@ -84,17 +84,16 @@ stream: stream_lib.o stream_main.o util.o
 libnuma.so.$(LIBNUMA_VER): ALL_CFLAGS += -fPIC
 libnuma.so.$(LIBNUMA_VER): versions.ldscript
 libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
-	${CC} ${LDFLAGS} -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
 
 %.so: %.so.$(LIBNUMA_VER)
 	ln -sf $< $@
 
-
 %.o : %.c
-	${CC} ${ALL_CFLAGS} -o $@ -c $<
+	$(CC) $(ALL_CFLAGS) -o $@ -c $<
 
 $(TOOLS) $(TESTS) : libnuma.so libnuma.a
-	${CC} ${LDFLAGS} -o $@ $(filter-out libnuma.so,$(filter-out libnuma.a,$^)) ${LDLIBS} -L. -lnuma
+	$(CC) $(LDFLAGS) -o $@ $(filter-out libnuma.so,$(filter-out libnuma.a,$^)) $(LDLIBS) -L. -lnuma
 
 AR ?= ar
 RANLIB ?= ranlib
@@ -102,22 +101,22 @@ libnuma.a: libnuma.o syscall.o distance.o sysfs.o affinity.o rtnetlink.o
 	$(AR) rc $@ $^
 	$(RANLIB) $@
 
-libnuma.o : ALL_CFLAGS += -fPIC
-distance.o : ALL_CFLAGS += -fPIC
-syscall.o : ALL_CFLAGS += -fPIC
-affinity.o : ALL_CFLAGS += -fPIC
-sysfs.o : ALL_CFLAGS += -fPIC
+libnuma.o   : ALL_CFLAGS += -fPIC
+distance.o  : ALL_CFLAGS += -fPIC
+syscall.o   : ALL_CFLAGS += -fPIC
+affinity.o  : ALL_CFLAGS += -fPIC
+sysfs.o     : ALL_CFLAGS += -fPIC
 rtnetlink.o : ALL_CFLAGS += -fPIC
 
-test/tshared: test/tshared.o
-test/mynode: test/mynode.o
+test/tshared : test/tshared.o
+test/mynode  : test/mynode.o
 test/pagesize: test/pagesize.o
 test/prefered: test/prefered.o
-test/ftok: test/ftok.o
-test/randmap: test/randmap.o
-test/nodemap: test/nodemap.o
+test/ftok    : test/ftok.o
+test/randmap : test/randmap.o
+test/nodemap : test/nodemap.o
 test/distance: test/distance.o
-test/tbitmap: test/tbitmap.o
+test/tbitmap : test/tbitmap.o
 test/move_pages: test/move_pages.o
 test/mbind_mig_pages: test/mbind_mig_pages.o
 test/migrate_pages: test/migrate_pages.o
@@ -128,43 +127,43 @@ test/node-parse: test/node-parse.o util.o
 
 MANPAGES := numa.3 numactl.8 numastat.8 migratepages.8 migspeed.8
 
-install: numactl migratepages migspeed numademo.c numamon memhog libnuma.so.$(LIBNUMA_VER) numa.h numaif.h numacompat1.h numastat ${MANPAGES}
-	mkdir -p ${prefix}/bin
-	install -m 0755 numactl ${prefix}/bin
-	install -m 0755 migratepages ${prefix}/bin
-	install -m 0755 migspeed ${prefix}/bin
-	install -m 0755 numademo ${prefix}/bin
-	install -m 0755 memhog ${prefix}/bin
-	mkdir -p ${prefix}/share/man/man2 ${prefix}/share/man/man8 ${prefix}/share/man/man3
-	install -m 0644 migspeed.8 ${prefix}/share/man/man8
-	install -m 0644 migratepages.8 ${prefix}/share/man/man8
-	install -m 0644 numactl.8 ${prefix}/share/man/man8
-	install -m 0644 numastat.8 ${prefix}/share/man/man8
-	install -m 0644 numa.3 ${prefix}/share/man/man3
-	( cd ${prefix}/share/man/man3 ; for i in $$(./manlinks) ; do ln -sf numa.3 $$i.3 ; done )
-	mkdir -p ${libdir}
-	install -m 0755 libnuma.so.$(LIBNUMA_VER) ${libdir}
-	cd ${libdir} ; ln -sf libnuma.so.$(LIBNUMA_VER) libnuma.so
-	install -m 0644 libnuma.a ${libdir}
-	mkdir -p ${prefix}/include
-	install -m 0644 numa.h numaif.h numacompat1.h ${prefix}/include
-	install -m 0755 numastat ${prefix}/bin
-	if [ -d ${docdir} ] ; then \
-		mkdir -p ${docdir}/numactl/examples ; \
-		install -m 0644 numademo.c ${docdir}/numactl/examples ; \
+install: numactl migratepages migspeed numademo.c numamon memhog libnuma.so.$(LIBNUMA_VER) numa.h numaif.h numacompat1.h numastat $(MANPAGES)
+	mkdir -p $(prefix)/bin
+	install -m 0755 numactl $(prefix)/bin
+	install -m 0755 migratepages $(prefix)/bin
+	install -m 0755 migspeed $(prefix)/bin
+	install -m 0755 numademo $(prefix)/bin
+	install -m 0755 memhog $(prefix)/bin
+	mkdir -p $(prefix)/share/man/man2 $(prefix)/share/man/man8 $(prefix)/share/man/man3
+	install -m 0644 migspeed.8 $(prefix)/share/man/man8
+	install -m 0644 migratepages.8 $(prefix)/share/man/man8
+	install -m 0644 numactl.8 $(prefix)/share/man/man8
+	install -m 0644 numastat.8 $(prefix)/share/man/man8
+	install -m 0644 numa.3 $(prefix)/share/man/man3
+	( cd $(prefix)/share/man/man3 ; for i in $$(./manlinks) ; do ln -sf numa.3 $$i.3 ; done )
+	mkdir -p $(libdir)
+	install -m 0755 libnuma.so.$(LIBNUMA_VER) $(libdir)
+	cd $(libdir) ; ln -sf libnuma.so.$(LIBNUMA_VER) libnuma.so
+	install -m 0644 libnuma.a $(libdir)
+	mkdir -p $(prefix)/include
+	install -m 0644 numa.h numaif.h numacompat1.h $(prefix)/include
+	install -m 0755 numastat $(prefix)/bin
+	if [ -d $(docdir) ] ; then \
+		mkdir -p $(docdir)/numactl/examples ; \
+		install -m 0644 numademo.c $(docdir)/numactl/examples ; \
 	fi
 
 HTML := html/numactl.html html/numa.html
 
 clean:
-	rm -f ${CLEANFILES}
+	rm -f $(CLEANFILES)
 	@rm -rf html
 
 distclean: clean
 	rm -f .[^.]* */.[^.]*
 	rm -f *~ */*~ *.orig */*.orig */*.rej *.rej
 
-html: ${HTML}
+html: $(HTML)
 
 htmldir:
 	if [ ! -d html ] ; then mkdir html ; fi
@@ -178,7 +177,7 @@ html/numa.html: numa.3 htmldir
 depend: .depend
 
 .depend:
-	${CC} -MM -DDEPS_RUN -I. ${SOURCES} > .depend.X && mv .depend.X .depend
+	$(CC) -MM -DDEPS_RUN -I. $(SOURCES) > .depend.X && mv .depend.X .depend
 
 include .depend
 
