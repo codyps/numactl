@@ -87,6 +87,9 @@ libnuma.so.1: libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
 
 libnuma.o : CFLAGS += -fPIC
 
+%.o : %.c
+	${CC} ${CFLAGS} -o $@ -c $<
+
 AR ?= ar
 RANLIB ?= ranlib
 libnuma.a: libnuma.o syscall.o distance.o sysfs.o affinity.o rtnetlink.o
