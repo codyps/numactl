@@ -67,7 +67,6 @@ numademo: LDLIBS += -lm
 numademo: CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE ${BENCH_CFLAGS}
 stream_lib.o: CFLAGS += ${BENCH_CFLAGS}
 mt.o: CFLAGS += ${BENCH_CFLAGS} 
-mt.o: mt.c
 numademo: numademo.o stream_lib.o mt.o libnuma.so clearcache.o
 
 test_numademo: numademo
