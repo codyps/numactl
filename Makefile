@@ -56,6 +56,7 @@ all: numactl migratepages migspeed libnuma.so numademo numamon memhog \
 numactl: numactl.o util.o shm.o bitops.o libnuma.so
 
 numastat: CFLAGS += -std=gnu99
+numastat: numastat.o
 
 migratepages: migratepages.c util.o bitops.o libnuma.so
 
