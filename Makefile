@@ -28,14 +28,14 @@ TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
 	realloc_test node-parse
 TESTS := $(addprefix test/,$(TESTS))
 
+libobj-numa = libnuma.o syscall.o distance.o sysfs.o affinity.o rtnetlink.o
 LIBNUMA_VER=1.3
 
-CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
-	      libnuma.so libnuma.so.$(LIBNUMA_VER) numamon.o syscall.o bitops.o \
+CLEANFILES := $(libobj-numa) numactl.o numademo.o \
+	      libnuma.so libnuma.so.$(LIBNUMA_VER) numamon.o bitops.o \
 	      memhog.o util.o stream_main.o stream_lib.o shm.o clearcache.o \
 	      test/mynode.o test/tshared.o mt.o empty.o empty.c \
 	      migspeed.o libnuma.a \
-	      sysfs.o affinity.o \
 	      test/A test/after test/before\
 	      $(TOOLS) $(TESTS)
 SOURCES := bitops.c libnuma.c distance.c memhog.c numactl.c numademo.c \
@@ -80,9 +80,7 @@ threadtest: threadtest.o
 stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o util.o
 
-libnuma.so.$(LIBNUMA_VER): ALL_CFLAGS += -fPIC
-libnuma.so.$(LIBNUMA_VER): versions.ldscript
-libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtnetlink.o
+libnuma.so.$(LIBNUMA_VER): $(libobj-numa) versions.ldscript
 	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
 
 %.so: %.so.$(LIBNUMA_VER)
@@ -90,24 +88,19 @@ libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtn
 
 obj-to-dep = $(dir $1).$(notdir $1).d
 
+lib-flags = $(if $(filter $1,$(libobj-numa)),-fPIC)
+
 %.o : %.c
-	$(CC) $(ALL_CFLAGS) -o $@ -c $< -MMD -MF $(call obj-to-dep,$@)
+	$(CC) $(ALL_CFLAGS) -o $@ -c $< -MMD -MF $(call obj-to-dep,$@) $(call lib-flags,$@)
 
 $(TOOLS) $(TESTS) : libnuma.so libnuma.a
 	$(CC) $(LDFLAGS) -o $@ $(filter-out libnuma.so,$(filter-out libnuma.a,$^)) $(LDLIBS) -L. -lnuma
 
 AR ?= ar
 RANLIB ?= ranlib
-libnuma.a: libnuma.o syscall.o distance.o sysfs.o affinity.o rtnetlink.o
+libnuma.a: $(libobj-numa)
 	$(AR) rc $@ $^
 	$(RANLIB) $@
-
-libnuma.o   : ALL_CFLAGS += -fPIC
-distance.o  : ALL_CFLAGS += -fPIC
-syscall.o   : ALL_CFLAGS += -fPIC
-affinity.o  : ALL_CFLAGS += -fPIC
-sysfs.o     : ALL_CFLAGS += -fPIC
-rtnetlink.o : ALL_CFLAGS += -fPIC
 
 test/tshared : test/tshared.o
 test/mynode  : test/mynode.o
