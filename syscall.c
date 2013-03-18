@@ -109,7 +109,7 @@
 
 #define __NR_migrate_pages	272
 
-#elif !defined(DEPS_RUN)
+#else
 #error "Add syscalls for your architecture or update kernel headers"
 #endif
 

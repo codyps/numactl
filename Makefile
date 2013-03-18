@@ -34,7 +34,6 @@ CLEANFILES := numactl.o libnuma.o numademo.o distance.o \
 	      libnuma.so libnuma.so.$(LIBNUMA_VER) numamon.o syscall.o bitops.o \
 	      memhog.o util.o stream_main.o stream_lib.o shm.o clearcache.o \
 	      test/mynode.o test/tshared.o mt.o empty.o empty.c \
-	      .depend .depend.X \
 	      migspeed.o libnuma.a \
 	      sysfs.o affinity.o \
 	      test/A test/after test/before\
@@ -89,8 +88,10 @@ libnuma.so.$(LIBNUMA_VER): libnuma.o syscall.o distance.o affinity.o sysfs.o rtn
 %.so: %.so.$(LIBNUMA_VER)
 	ln -sf $< $@
 
+obj-to-dep = $(dir $1).$(notdir $1).d
+
 %.o : %.c
-	$(CC) $(ALL_CFLAGS) -o $@ -c $<
+	$(CC) $(ALL_CFLAGS) -o $@ -c $< -MMD -MF $(call obj-to-dep,$@)
 
 $(TOOLS) $(TESTS) : libnuma.so libnuma.a
 	$(CC) $(LDFLAGS) -o $@ $(filter-out libnuma.so,$(filter-out libnuma.a,$^)) $(LDLIBS) -L. -lnuma
@@ -123,7 +124,7 @@ test/migrate_pages: test/migrate_pages.o
 test/realloc_test: test/realloc_test.o
 test/node-parse: test/node-parse.o util.o
 
-.PHONY: install all clean html depend
+.PHONY: install all clean html
 
 MANPAGES := numa.3 numactl.8 numastat.8 migratepages.8 migspeed.8
 
@@ -174,15 +175,6 @@ html/numactl.html: numactl.8 htmldir
 html/numa.html: numa.3 htmldir
 	groff -Thtml -man numa.3 > html/numa.html
 
-depend: .depend
-
-.depend:
-	$(CC) -MM -DDEPS_RUN -I. $(SOURCES) > .depend.X && mv .depend.X .depend
-
-include .depend
-
-Makefile: .depend
-
 .PHONY: test regress1 regress2
 
 regress1:
@@ -195,3 +187,5 @@ regress3:
 	cd test ; ./regress-io
 
 test: all regress1 regress2 test_numademo regress3
+
+-include $(wildcard .*.d)
