@@ -67,8 +67,8 @@ memhog: util.o memhog.o
 numademo: LDLIBS += -lm
 # GNU make 3.80 appends BENCH_CFLAGS twice. Bug? It's harmless though.
 numademo: ALL_CFLAGS += -DHAVE_STREAM_LIB -DHAVE_MT -DHAVE_CLEAR_CACHE $(BENCH_CFLAGS)
-#stream_lib.o: ALL_CFLAGS += $(BENCH_CFLAGS)
-#mt.o: ALL_CFLAGS += $(BENCH_CFLAGS)
+stream_lib.o: ALL_CFLAGS += $(BENCH_CFLAGS)
+mt.o: ALL_CFLAGS += $(BENCH_CFLAGS)
 numademo: numademo.o stream_lib.o mt.o clearcache.o
 
 test_numademo: numademo
@@ -87,7 +87,6 @@ libnuma.so.$(LIBNUMA_VER): $(libobj-numa) versions.ldscript
 	ln -sf $< $@
 
 obj-to-dep = $(dir $1).$(notdir $1).d
-
 lib-flags = $(if $(filter $1,$(libobj-numa)),-fPIC)
 
 %.o : %.c
