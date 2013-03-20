@@ -81,7 +81,7 @@ stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o util.o
 
 libnuma.so.$(LIBNUMA_VER): $(libobj-numa) versions.ldscript
-	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname=libnuma_$(LIBNUMA_VER) -Wl,--version-script,versions.ldscript -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out versions.ldscript,$^)
 
 %.so: %.so.$(LIBNUMA_VER)
 	ln -sf $< $@
