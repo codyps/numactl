@@ -47,7 +47,7 @@ prefix := /usr
 else
 prefix := $(PREFIX)
 endif
-libdir := $(prefix)/$(shell ./getlibdir)
+libdir := $(prefix)/lib
 docdir := $(prefix)/share/doc
 
 all: $(TOOLS) $(TESTS) libnuma.so libnuma.a
