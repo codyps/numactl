@@ -1,7 +1,7 @@
 # these can (and should) be overridden on the make command line for production
 CFLAGS :=  -g -Wall -O2
-# If you are using a toolchain or dynamic linker (like uClibc) that does not
-# support symbol versioning, override this to '0'
+# If your dynamic linker (uClibc's ld.so, for example) does not support symbol
+# versioning, override this to '0'
 SYMVERS_ENABLED := 1
 # these are used for the benchmarks in addition to the normal CFLAGS.
 # Normally no need to overwrite unless you find a new magic flag to make
@@ -83,21 +83,23 @@ threadtest: threadtest.o
 stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o util.o
 
+LIB_CFLAGS = -fPIC
 ifeq ($(SYMVERS_ENABLED),1)
-version-flags-numa = -Wl,--version-script,$(version-map-numa)
 version-map-numa = versions.ldscript
+version-ldflags-numa = -Wl,--version-script,$(version-map-numa)
+LIB_CFLAGS += -DSYMVERS_ENABLED=1
 else
 version-flags-numa =
 version-map-numa =
 endif
 libnuma.so.$(LIBNUMA_VER): $(libobj-numa) $(version-map-numa)
-	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ $(version-flags-numa) -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out $(version-map-numa),$^)
+	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ $(version-ldflags-numa) -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out $(version-map-numa),$^)
 
 %.so: %.so.$(LIBNUMA_VER)
 	ln -sf $< $@
 
 obj-to-dep = $(dir $1).$(notdir $1).d
-lib-flags = $(if $(filter $1,$(libobj-numa)),-fPIC)
+lib-flags = $(if $(filter $1,$(libobj-numa)),$(LIB_CFLAGS))
 
 %.o : %.c
 	$(CC) $(ALL_CFLAGS) -o $@ -c $< -MMD -MF $(call obj-to-dep,$@) $(call lib-flags,$@)
