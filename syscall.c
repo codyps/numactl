@@ -220,21 +220,21 @@ int numa_sched_setaffinity_v1(pid_t pid, unsigned len, const unsigned long *mask
 {
 	return syscall(__NR_sched_setaffinity,pid,len,mask);
 }
-__asm__(".symver numa_sched_setaffinity_v1,numa_sched_setaffinity@libnuma_1.1");
+SYMVER(".symver numa_sched_setaffinity_v1,numa_sched_setaffinity@libnuma_1.1");
 
 int numa_sched_setaffinity_v2(pid_t pid, struct bitmask *mask)
 {
 	return syscall(__NR_sched_setaffinity, pid, numa_bitmask_nbytes(mask),
 								mask->maskp);
 }
-__asm__(".symver numa_sched_setaffinity_v2,numa_sched_setaffinity@@libnuma_1.2");
+SYMVER(".symver numa_sched_setaffinity_v2,numa_sched_setaffinity@@libnuma_1.2");
 
 int numa_sched_getaffinity_v1(pid_t pid, unsigned len, const unsigned long *mask)
 {
 	return syscall(__NR_sched_getaffinity,pid,len,mask);
 
 }
-__asm__(".symver numa_sched_getaffinity_v1,numa_sched_getaffinity@libnuma_1.1");
+SYMVER(".symver numa_sched_getaffinity_v1,numa_sched_getaffinity@libnuma_1.1");
 
 int numa_sched_getaffinity_v2(pid_t pid, struct bitmask *mask)
 {
@@ -244,7 +244,7 @@ int numa_sched_getaffinity_v2(pid_t pid, struct bitmask *mask)
 	/* sched_getaffinity returns sizeof(cpumask_t) */
 
 }
-__asm__(".symver numa_sched_getaffinity_v2,numa_sched_getaffinity@@libnuma_1.2");
+SYMVER(".symver numa_sched_getaffinity_v2,numa_sched_getaffinity@@libnuma_1.2");
 
 make_internal_alias(numa_sched_getaffinity_v1);
 make_internal_alias(numa_sched_getaffinity_v2);

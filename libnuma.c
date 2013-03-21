@@ -677,14 +677,14 @@ numa_max_possible_node_v1(void)
 {
 	return ((sizeof(nodemask_t)*8)-1);
 }
-__asm__(".symver numa_max_possible_node_v1,numa_max_possible_node@libnuma_1.1");
+SYMVER(".symver numa_max_possible_node_v1,numa_max_possible_node@libnuma_1.1");
 
 int
 numa_max_possible_node_v2(void)
 {
 	return numa_num_possible_nodes()-1;
 }
-__asm__(".symver numa_max_possible_node_v2,numa_max_possible_node@@libnuma_1.2");
+SYMVER(".symver numa_max_possible_node_v2,numa_max_possible_node@@libnuma_1.2");
 
 make_internal_alias(numa_max_possible_node_v1);
 make_internal_alias(numa_max_possible_node_v2);
@@ -802,14 +802,14 @@ numa_interleave_memory_v1(void *mem, size_t size, const nodemask_t *mask)
 	bitmask.maskp = (unsigned long *)mask;
 	dombind(mem, size, MPOL_INTERLEAVE, &bitmask);
 }
-__asm__(".symver numa_interleave_memory_v1,numa_interleave_memory@libnuma_1.1");
+SYMVER(".symver numa_interleave_memory_v1,numa_interleave_memory@libnuma_1.1");
 
 void
 numa_interleave_memory_v2(void *mem, size_t size, struct bitmask *bmp)
 {
 	dombind(mem, size, MPOL_INTERLEAVE, bmp);
 }
-__asm__(".symver numa_interleave_memory_v2,numa_interleave_memory@@libnuma_1.2");
+SYMVER(".symver numa_interleave_memory_v2,numa_interleave_memory@@libnuma_1.2");
 
 void numa_tonode_memory(void *mem, size_t size, int node)
 {
@@ -830,14 +830,14 @@ numa_tonodemask_memory_v1(void *mem, size_t size, const nodemask_t *mask)
 	bitmask.size  = sizeof(nodemask_t);
 	dombind(mem, size,  bind_policy, &bitmask);
 }
-__asm__(".symver numa_tonodemask_memory_v1,numa_tonodemask_memory@libnuma_1.1");
+SYMVER(".symver numa_tonodemask_memory_v1,numa_tonodemask_memory@libnuma_1.1");
 
 void
 numa_tonodemask_memory_v2(void *mem, size_t size, struct bitmask *bmp)
 {
 	dombind(mem, size,  bind_policy, bmp);
 }
-__asm__(".symver numa_tonodemask_memory_v2,numa_tonodemask_memory@@libnuma_1.2");
+SYMVER(".symver numa_tonodemask_memory_v2,numa_tonodemask_memory@@libnuma_1.2");
 
 void numa_setlocal_memory(void *mem, size_t size)
 {
@@ -896,7 +896,7 @@ void *numa_alloc_interleaved_subset_v1(size_t size, const nodemask_t *mask)
 	dombind(mem, size, MPOL_INTERLEAVE, &bitmask);
 	return mem;
 }
-__asm__(".symver numa_alloc_interleaved_subset_v1,numa_alloc_interleaved_subset@libnuma_1.1");
+SYMVER(".symver numa_alloc_interleaved_subset_v1,numa_alloc_interleaved_subset@libnuma_1.1");
 
 void *numa_alloc_interleaved_subset_v2(size_t size, struct bitmask *bmp)
 {
@@ -909,7 +909,7 @@ void *numa_alloc_interleaved_subset_v2(size_t size, struct bitmask *bmp)
 	dombind(mem, size, MPOL_INTERLEAVE, bmp);
 	return mem;
 }
-__asm__(".symver numa_alloc_interleaved_subset_v2,numa_alloc_interleaved_subset@@libnuma_1.2");
+SYMVER(".symver numa_alloc_interleaved_subset_v2,numa_alloc_interleaved_subset@@libnuma_1.2");
 
 make_internal_alias(numa_alloc_interleaved_subset_v1);
 make_internal_alias(numa_alloc_interleaved_subset_v2);
@@ -938,7 +938,7 @@ numa_set_interleave_mask_v1(nodemask_t *mask)
 	numa_bitmask_free(bmp);
 }
 
-__asm__(".symver numa_set_interleave_mask_v1,numa_set_interleave_mask@libnuma_1.1");
+SYMVER(".symver numa_set_interleave_mask_v1,numa_set_interleave_mask@libnuma_1.1");
 
 void
 numa_set_interleave_mask_v2(struct bitmask *bmp)
@@ -948,7 +948,7 @@ numa_set_interleave_mask_v2(struct bitmask *bmp)
 	else
 		setpol(MPOL_INTERLEAVE, bmp);
 }
-__asm__(".symver numa_set_interleave_mask_v2,numa_set_interleave_mask@@libnuma_1.2");
+SYMVER(".symver numa_set_interleave_mask_v2,numa_set_interleave_mask@@libnuma_1.2");
 
 nodemask_t
 numa_get_interleave_mask_v1(void)
@@ -966,7 +966,7 @@ numa_get_interleave_mask_v1(void)
 	numa_bitmask_free(bmp);
 	return mask;
 }
-__asm__(".symver numa_get_interleave_mask_v1,numa_get_interleave_mask@libnuma_1.1");
+SYMVER(".symver numa_get_interleave_mask_v1,numa_get_interleave_mask@libnuma_1.1");
 
 struct bitmask *
 numa_get_interleave_mask_v2(void)
@@ -980,7 +980,7 @@ numa_get_interleave_mask_v2(void)
 		copy_bitmask_to_bitmask(numa_no_nodes_ptr, bmp);
 	return bmp;
 }
-__asm__(".symver numa_get_interleave_mask_v2,numa_get_interleave_mask@@libnuma_1.2");
+SYMVER(".symver numa_get_interleave_mask_v2,numa_get_interleave_mask@@libnuma_1.2");
 
 /* (undocumented) */
 int numa_get_interleave_node(void)
@@ -1037,14 +1037,14 @@ numa_set_membind_v1(const nodemask_t *mask)
 	bitmask.size  = sizeof(nodemask_t);
 	setpol(MPOL_BIND, &bitmask);
 }
-__asm__(".symver numa_set_membind_v1,numa_set_membind@libnuma_1.1");
+SYMVER(".symver numa_set_membind_v1,numa_set_membind@libnuma_1.1");
 
 void
 numa_set_membind_v2(struct bitmask *bmp)
 {
 	setpol(MPOL_BIND, bmp);
 }
-__asm__(".symver numa_set_membind_v2,numa_set_membind@@libnuma_1.2");
+SYMVER(".symver numa_set_membind_v2,numa_set_membind@@libnuma_1.2");
 
 make_internal_alias(numa_set_membind_v2);
 
@@ -1122,7 +1122,7 @@ numa_get_membind_v1(void)
 	numa_bitmask_free(bmp);
 	return nmp;
 }
-__asm__(".symver numa_get_membind_v1,numa_get_membind@libnuma_1.1");
+SYMVER(".symver numa_get_membind_v1,numa_get_membind@libnuma_1.1");
 
 struct bitmask *
 numa_get_membind_v2(void)
@@ -1136,7 +1136,7 @@ numa_get_membind_v2(void)
 		copy_bitmask_to_bitmask(numa_all_nodes_ptr, bmp);
 	return bmp;
 }
-__asm__(".symver numa_get_membind_v2,numa_get_membind@@libnuma_1.2");
+SYMVER(".symver numa_get_membind_v2,numa_get_membind@@libnuma_1.2");
 
 //TODO:  do we need a v1 nodemask_t version?
 struct bitmask *numa_get_mems_allowed(void)
@@ -1193,7 +1193,7 @@ numa_parse_bitmap_v1(char *line, unsigned long *mask, int ncpus)
 	}
 	return 0;
 }
-__asm__(".symver numa_parse_bitmap_v1,numa_parse_bitmap@libnuma_1.1");
+SYMVER(".symver numa_parse_bitmap_v1,numa_parse_bitmap@libnuma_1.1");
 
 int
 numa_parse_bitmap_v2(char *line, struct bitmask *mask)
@@ -1229,7 +1229,7 @@ numa_parse_bitmap_v2(char *line, struct bitmask *mask)
 	}
 	return 0;
 }
-__asm__(".symver numa_parse_bitmap_v2,numa_parse_bitmap@@libnuma_1.2");
+SYMVER(".symver numa_parse_bitmap_v2,numa_parse_bitmap@@libnuma_1.2");
 
 void
 init_node_cpu_mask_v2(void)
@@ -1307,7 +1307,7 @@ numa_node_to_cpus_v1(int node, unsigned long *buffer, int bufferlen)
 	}
 	return err;
 }
-__asm__(".symver numa_node_to_cpus_v1,numa_node_to_cpus@libnuma_1.1");
+SYMVER(".symver numa_node_to_cpus_v1,numa_node_to_cpus@libnuma_1.1");
 
 /*
  * test whether a node has cpus
@@ -1384,7 +1384,7 @@ numa_node_to_cpus_v2(int node, struct bitmask *buffer)
 	}
 	return err;
 }
-__asm__(".symver numa_node_to_cpus_v2,numa_node_to_cpus@@libnuma_1.2");
+SYMVER(".symver numa_node_to_cpus_v2,numa_node_to_cpus@@libnuma_1.2");
 
 make_internal_alias(numa_node_to_cpus_v1);
 make_internal_alias(numa_node_to_cpus_v2);
@@ -1469,7 +1469,7 @@ numa_run_on_node_mask_v1(const nodemask_t *mask)
 	}
 	return err;
 }
-__asm__(".symver numa_run_on_node_mask_v1,numa_run_on_node_mask@libnuma_1.1");
+SYMVER(".symver numa_run_on_node_mask_v1,numa_run_on_node_mask@libnuma_1.1");
 
 /*
  * Given a node mask (size of a kernel nodemask_t) (probably populated by
@@ -1520,7 +1520,7 @@ numa_run_on_node_mask_v2(struct bitmask *bmp)
 
 	return err;
 }
-__asm__(".symver numa_run_on_node_mask_v2,numa_run_on_node_mask@@libnuma_1.2");
+SYMVER(".symver numa_run_on_node_mask_v2,numa_run_on_node_mask@@libnuma_1.2");
 
 make_internal_alias(numa_run_on_node_mask_v2);
 
@@ -1558,7 +1558,7 @@ free_cpus:
 	numa_bitmask_free(cpus);
 	return nmp;
 }
-__asm__(".symver numa_get_run_node_mask_v1,numa_get_run_node_mask@libnuma_1.1");
+SYMVER(".symver numa_get_run_node_mask_v1,numa_get_run_node_mask@libnuma_1.1");
 
 struct bitmask *
 numa_get_run_node_mask_v2(void)
@@ -1599,7 +1599,7 @@ free_cpus:
 	numa_bitmask_free(cpus);
 	return bmp;
 }
-__asm__(".symver numa_get_run_node_mask_v2,numa_get_run_node_mask@@libnuma_1.2");
+SYMVER(".symver numa_get_run_node_mask_v2,numa_get_run_node_mask@@libnuma_1.2");
 
 int
 numa_migrate_pages(int pid, struct bitmask *fromnodes, struct bitmask *tonodes)
@@ -1695,14 +1695,14 @@ void numa_bind_v1(const nodemask_t *nodemask)
 	numa_run_on_node_mask_v2_int(&bitmask);
 	numa_set_membind_v2_int(&bitmask);
 }
-__asm__(".symver numa_bind_v1,numa_bind@libnuma_1.1");
+SYMVER(".symver numa_bind_v1,numa_bind@libnuma_1.1");
 
 void numa_bind_v2(struct bitmask *bmp)
 {
 	numa_run_on_node_mask_v2_int(bmp);
 	numa_set_membind_v2_int(bmp);
 }
-__asm__(".symver numa_bind_v2,numa_bind@@libnuma_1.2");
+SYMVER(".symver numa_bind_v2,numa_bind@@libnuma_1.2");
 
 void numa_set_strict(int flag)
 {
