@@ -84,13 +84,10 @@ stream: LDLIBS += -lm
 stream: stream_lib.o stream_main.o util.o
 
 LIB_CFLAGS = -fPIC
-ifeq ($(SYMVERS_ENABLED),1)
 version-map-numa = versions.ldscript
 version-ldflags-numa = -Wl,--version-script,$(version-map-numa)
+ifeq ($(SYMVERS_ENABLED),1)
 LIB_CFLAGS += -DSYMVERS_ENABLED=1
-else
-version-flags-numa =
-version-map-numa =
 endif
 libnuma.so.$(LIBNUMA_VER): $(libobj-numa) $(version-map-numa)
 	$(CC) $(LDFLAGS) -shared -Wl,-soname=$@ $(version-ldflags-numa) -Wl,-init,numa_init -Wl,-fini,numa_fini -o $@ $(filter-out $(version-map-numa),$^)
