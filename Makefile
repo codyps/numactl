@@ -32,7 +32,7 @@ TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
 TESTS := $(addprefix test/,$(TESTS))
 
 libobj-numa = libnuma.o syscall.o distance.o sysfs.o affinity.o rtnetlink.o
-LIBNUMA_VER=1.3
+LIBNUMA_VER=1
 
 CLEANFILES := $(libobj-numa) numactl.o numademo.o \
 	      libnuma.so libnuma.so.$(LIBNUMA_VER) numamon.o bitops.o \

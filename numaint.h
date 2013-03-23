@@ -5,10 +5,10 @@ extern int numa_sched_setaffinity_v1(pid_t pid, unsigned len, const unsigned lon
 extern int numa_sched_getaffinity_v1(pid_t pid, unsigned len, const unsigned long *mask);
 extern int numa_sched_setaffinity_v1_int(pid_t pid, unsigned len,const unsigned long *mask);
 extern int numa_sched_getaffinity_v1_int(pid_t pid, unsigned len,const unsigned long *mask);
-extern int numa_sched_setaffinity_v2(pid_t pid, struct bitmask *mask);
-extern int numa_sched_getaffinity_v2(pid_t pid, struct bitmask *mask);
-extern int numa_sched_setaffinity_v2_int(pid_t pid, struct bitmask *mask);
-extern int numa_sched_getaffinity_v2_int(pid_t pid, struct bitmask *mask);
+extern int numa_sched_setaffinity(pid_t pid, struct bitmask *mask);
+extern int numa_sched_getaffinity(pid_t pid, struct bitmask *mask);
+extern int numa_sched_setaffinity_int(pid_t pid, struct bitmask *mask);
+extern int numa_sched_getaffinity_int(pid_t pid, struct bitmask *mask);
 
 #define SHM_HUGETLB     04000   /* segment will use huge TLB pages */
 
