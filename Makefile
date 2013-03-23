@@ -2,7 +2,7 @@
 CFLAGS :=  -g -Wall -O2
 # If your dynamic linker (uClibc's ld.so, for example) does not support symbol
 # versioning, override this to '0'
-SYMVERS_ENABLED := 1
+#SYMVERS_ENABLED := 1
 # these are used for the benchmarks in addition to the normal CFLAGS.
 # Normally no need to overwrite unless you find a new magic flag to make
 # STREAM run faster.
@@ -28,6 +28,15 @@ cc-option = $(call try-run,\
 ifeq ($(call cc-can-build,int __thread x;,yes,no),no)
 	ALL_CFLAGS += -D__thread=""
 endif
+
+ifndef SYMVERS_ENABLED
+define SYMVERS-test
+#include <dlfcn.h>
+int main(void) { dlvsym(NULL,NULL,NULL); return 0}
+endef
+SYMVERS_ENABLED=$(call cc-can-build,$(SYMVERS-test),1,0)
+endif
+
 
 # find out if compiler supports -ftree-vectorize
 BENCH_CFLAGS += $(call cc-option,-ftree-vectorize)
