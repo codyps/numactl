@@ -10,19 +10,27 @@ BENCH_CFLAGS := -O3 -ffast-math -funroll-loops
 
 ALL_CFLAGS += $(CFLAGS) -I.
 
+try-run = $(shell set -e;	\
+	TMP=".$$$$.tmp";	\
+	TMPO=".$$$$.o";		\
+	if ($(1)) >/dev/null 2>&1; \
+	then echo "$(2)";	\
+	else echo "$(3)";	\
+	fi;			\
+	rm -f "$$TMP" "$$TMPO")
+
+cc-can-build = $(call try-run,\
+	printf "%s\n" "$(1)" | $(CC) $(ALL_CFLAGS) -c -x c - -o "$$TMP",$(2),$(3))
+cc-option = $(call try-run,\
+	$(CC) $(ALL_CFLAGS) $(1) -c -x c /dev/null -o "$$TMP",$(1),$(2))
+
 # find out if compiler supports __thread
-THREAD_SUPPORT := $(shell if $(CC) $(ALL_CFLAGS) threadtest.c -o threadtest \
-			>/dev/null 2>/dev/null ; then echo "yes" ; else echo "no"; fi)
-ifeq ($(THREAD_SUPPORT),no)
+ifeq ($(call cc-can-build,int __thread x;,yes,no),no)
 	ALL_CFLAGS += -D__thread=""
 endif
 
 # find out if compiler supports -ftree-vectorize
-THREAD_SUPPORT := $(shell touch empty.c ; if $(CC) $(ALL_CFLAGS) -c -ftree-vectorize empty.c -o empty.o \
-			>/dev/null 2>/dev/null ; then echo "yes" ; else echo "no"; fi; rm empty.c)
-ifeq ($(THREAD_SUPPORT),yes)
-	BENCH_CFLAGS += -ftree-vectorize
-endif
+BENCH_CFLAGS += $(call cc-option,-ftree-vectorize)
 
 TOOLS := numactl numademo memhog numamon stream migratepages migspeed \
 	numastat threadtest
