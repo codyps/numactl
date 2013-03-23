@@ -243,8 +243,3 @@ int numa_sched_getaffinity(pid_t pid, struct bitmask *mask)
 	/* sched_getaffinity returns sizeof(cpumask_t) */
 
 }
-
-make_internal_alias(numa_sched_getaffinity_v1);
-make_internal_alias(numa_sched_getaffinity);
-make_internal_alias(numa_sched_setaffinity_v1);
-make_internal_alias(numa_sched_setaffinity);
