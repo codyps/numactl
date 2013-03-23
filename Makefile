@@ -42,7 +42,7 @@ endif
 BENCH_CFLAGS += $(call cc-option,-ftree-vectorize)
 
 TOOLS := numactl numademo memhog numamon stream migratepages migspeed \
-	numastat threadtest
+	numastat
 TESTS := pagesize tshared mynode ftok prefered randmap nodemap distance \
 	tbitmap mbind_mig_pages migrate_pages move_pages \
 	realloc_test node-parse
